@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estructurador de Prompt / Spec</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --surface: #1a2332;
+      --surface2: #243044;
+      --border: #2d3a4f;
+      --text: #e7ecf3;
+      --text-muted: #8b9bb4;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --success: #22c55e;
+      --radius: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+      padding: 24px 16px 48px;
+    }
+
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      margin-bottom: 16px;
+    }
+
+    .card h2 {
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--accent);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card h2 .num {
+      background: var(--accent);
+      color: white;
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    input[type="text"],
+    textarea {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      transition: border-color 0.15s;
+    }
+
+    input[type="text"]:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    textarea {
+      min-height: 80px;
+      overflow: hidden;
+      resize: none;
+      line-height: 1.5;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    @media (max-width: 600px) {
+      .row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 24px 0 16px;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 20px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      font-family: inherit;
+      transition: background 0.15s, transform 0.1s;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .btn-secondary {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--border);
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: white;
+    }
+
+    #output-section {
+      display: none;
+    }
+
+    #output-section.visible {
+      display: block;
+    }
+
+    #output {
+      background: #0d1117;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 0.88rem;
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 420px;
+      overflow-y: auto;
+      color: #c9d1d9;
+      user-select: text;
+      -webkit-user-select: text;
+    }
+
+    .hint {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Estructurador de Prompt / Spec</h1>
+      <p>Completa las secciones → genera un prompt o especificación clara y lista para copiar</p>
+    </header>
+
+    <!-- 1. Contexto / Rol -->
+    <div class="card">
+      <h2><span class="num">1</span> Contexto / Rol</h2>
+      <label for="rol">¿Quién es el modelo o qué rol debe asumir?</label>
+      <input type="text" id="rol" placeholder="Ej: Eres un arquitecto de software senior especializado en APIs REST">
+      <p class="hint">Opcional pero muy recomendable. Define el “quién”.</p>
+    </div>
+
+    <!-- 2. Objetivo -->
+    <div class="card">
+      <h2><span class="num">2</span> Objetivo principal</h2>
+      <label for="objetivo">¿Qué quieres lograr exactamente?</label>
+      <textarea id="objetivo" placeholder="Ej: Crear la especificación funcional de un módulo de autenticación con login, registro y recuperación de contraseña" oninput="autoResize(this)"></textarea>
+    </div>
+
+    <!-- 3. Descripción detallada -->
+    <div class="card">
+      <h2><span class="num">3</span> Descripción / Requisitos</h2>
+      <label for="descripcion">Detalla lo que se necesita (funcionalidades, reglas de negocio, flujo…)</label>
+      <textarea id="descripcion" placeholder="Ej:&#10;- El usuario se registra con email y contraseña&#10;- Debe confirmar el email&#10;- Login con JWT&#10;- Recuperación por email con token de un solo uso&#10;- Rate limiting en intentos fallidos" oninput="autoResize(this)"></textarea>
+    </div>
+
+    <!-- 4. Restricciones -->
+    <div class="card">
+      <h2><span class="num">4</span> Restricciones y reglas</h2>
+      <label for="restricciones">Qué NO debe hacer, límites, tecnologías obligatorias, tono…</label>
+      <textarea id="restricciones" placeholder="Ej:&#10;- No usar OAuth de terceros&#10;- Debe ser compatible con mobile-first&#10;- Responder solo en español&#10;- No inventar endpoints que no se pidan" oninput="autoResize(this)"></textarea>
+    </div>
+
+    <!-- 5. Formato de salida -->
+    <div class="card">
+      <h2><span class="num">5</span> Formato de salida deseado</h2>
+      <label for="formato">¿Cómo quieres que responda? (estructura, markdown, tabla, código…)</label>
+      <textarea id="formato" placeholder="Ej:&#10;Devuelve la especificación en Markdown con las secciones:&#10;1. Resumen&#10;2. User Stories&#10;3. Requisitos funcionales&#10;4. Criterios de aceptación&#10;5. Endpoints propuestos" oninput="autoResize(this)"></textarea>
+    </div>
+
+    <!-- 6. Ejemplo (opcional) -->
+    <div class="card">
+      <h2><span class="num">6</span> Ejemplo (opcional)</h2>
+      <label for="ejemplo">Un ejemplo corto de lo que esperas (few-shot)</label>
+      <textarea id="ejemplo" placeholder="Ej:&#10;User Story: Como usuario quiero recuperar mi contraseña para poder acceder de nuevo.&#10;Criterio: El email debe llegar en menos de 2 minutos." oninput="autoResize(this)"></textarea>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" onclick="generar()">Generar prompt estructurado</button>
+      <button class="btn-secondary" onclick="limpiar()">Limpiar todo</button>
+    </div>
+
+    <!-- Resultado -->
+    <div class="card" id="output-section">
+      <h2>Prompt generado</h2>
+      <div id="output"></div>
+      <div class="actions" style="margin-top: 14px; margin-bottom: 0;">
+        <button class="btn-success" type="button" onclick="copiar(this)">Copiar al portapapeles</button>
+      </div>
+    </div>
+
+    <footer>
+      Mini-herramienta simple · Solo HTML + CSS + JS · Sin dependencias
+    </footer>
+  </div>
+
+  <script>
+    function autoResize(el) {
+      el.style.height = 'auto';
+      el.style.height = el.scrollHeight + 'px';
+    }
+
+    function generar() {
+      const rol = document.getElementById('rol').value.trim();
+      const objetivo = document.getElementById('objetivo').value.trim();
+      const descripcion = document.getElementById('descripcion').value.trim();
+      const restricciones = document.getElementById('restricciones').value.trim();
+      const formato = document.getElementById('formato').value.trim();
+      const ejemplo = document.getElementById('ejemplo').value.trim();
+
+      if (!objetivo && !descripcion) {
+        alert('Al menos completa el Objetivo o la Descripción.');
+        return;
+      }
+
+      let prompt = '';
+
+      if (rol) {
+        prompt += `# Rol\n${rol}\n\n`;
+      }
+
+      if (objetivo) {
+        prompt += `# Objetivo\n${objetivo}\n\n`;
+      }
+
+      if (descripcion) {
+        prompt += `# Descripción / Requisitos\n${descripcion}\n\n`;
+      }
+
+      if (restricciones) {
+        prompt += `# Restricciones y reglas\n${restricciones}\n\n`;
+      }
+
+      if (formato) {
+        prompt += `# Formato de salida\n${formato}\n\n`;
+      }
+
+      if (ejemplo) {
+        prompt += `# Ejemplo\n${ejemplo}\n\n`;
+      }
+
+      prompt = prompt.trim();
+
+      document.getElementById('output').textContent = prompt;
+      document.getElementById('output-section').classList.add('visible');
+      document.getElementById('output-section').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function marcarCopiado(btn) {
+      const original = btn.textContent;
+      btn.textContent = '¡Copiado!';
+      setTimeout(() => { btn.textContent = original; }, 1800);
+    }
+
+    function seleccionarNodo(nodo) {
+      const sel = window.getSelection();
+      const range = document.createRange();
+      range.selectNodeContents(nodo);
+      sel.removeAllRanges();
+      sel.addRange(range);
+      return sel;
+    }
+
+    function execCopy() {
+      try {
+        return document.execCommand('copy');
+      } catch (e) {
+        return false;
+      }
+    }
+
+    // Chrome en file://: Clipboard API existe pero rechaza el permiso.
+    // Hay que copiar en el mismo click, sin await, inyectando el texto
+    // en el evento 'copy' (más fiable que un textarea oculto).
+    function copiarConEvento(texto) {
+      let ok = false;
+      const onCopy = (e) => {
+        e.clipboardData.setData('text/plain', texto);
+        e.preventDefault();
+        ok = true;
+      };
+      document.addEventListener('copy', onCopy);
+      execCopy();
+      document.removeEventListener('copy', onCopy);
+      return ok;
+    }
+
+    function copiarDesdeSalida() {
+      const output = document.getElementById('output');
+      seleccionarNodo(output);
+      const ok = execCopy();
+      window.getSelection().removeAllRanges();
+      return ok;
+    }
+
+    function copiarConTextarea(texto) {
+      const ta = document.createElement('textarea');
+      ta.value = texto;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.top = '0';
+      ta.style.left = '0';
+      ta.style.width = '2em';
+      ta.style.height = '2em';
+      ta.style.padding = '0';
+      ta.style.border = 'none';
+      ta.style.outline = 'none';
+      ta.style.boxShadow = 'none';
+      ta.style.background = 'transparent';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      ta.setSelectionRange(0, ta.value.length);
+      const ok = execCopy();
+      document.body.removeChild(ta);
+      return ok;
+    }
+
+    function copiar(btn) {
+      const texto = document.getElementById('output').textContent;
+      if (!texto) {
+        alert('Primero genera el prompt.');
+        return;
+      }
+
+      if (copiarConEvento(texto) || copiarDesdeSalida() || copiarConTextarea(texto)) {
+        marcarCopiado(btn);
+        return;
+      }
+
+      const puedeClipboard = location.protocol !== 'file:'
+        && navigator.clipboard
+        && window.isSecureContext;
+
+      if (puedeClipboard) {
+        navigator.clipboard.writeText(texto).then(() => {
+          marcarCopiado(btn);
+        }).catch(() => {
+          seleccionarNodo(document.getElementById('output'));
+          alert('No se pudo copiar automáticamente. El texto ya está seleccionado: pulsa Ctrl+C.');
+        });
+        return;
+      }
+
+      seleccionarNodo(document.getElementById('output'));
+      alert('No se pudo copiar automáticamente. El texto ya está seleccionado: pulsa Ctrl+C.');
+    }
+
+    function limpiar() {
+      ['rol', 'objetivo', 'descripcion', 'restricciones', 'formato', 'ejemplo'].forEach(id => {
+        const el = document.getElementById(id);
+        el.value = '';
+        if (el.tagName === 'TEXTAREA') {
+          el.style.height = 'auto';
+        }
+      });
+      document.getElementById('output-section').classList.remove('visible');
+      document.getElementById('output').textContent = '';
+    }
+  </script>
+</body>
+</html>
