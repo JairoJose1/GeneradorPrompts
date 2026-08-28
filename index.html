@@ -198,14 +198,66 @@
       max-height: 420px;
       overflow-y: auto;
       color: #c9d1d9;
-      user-select: text;
-      -webkit-user-select: text;
+    }
+
+    .field-wrap {
+      position: relative;
+    }
+
+    .field-wrap input,
+    .field-wrap textarea {
+      padding-right: 48px;
+    }
+
+    .mic-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 34px;
+      height: 34px;
+      padding: 0;
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    .mic-btn:hover {
+      background: var(--border);
+    }
+
+    .mic-btn.listening {
+      background: #dc2626;
+      border-color: #dc2626;
+      color: white;
+      animation: pulse 1.2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.45); }
+      70% { box-shadow: 0 0 0 8px rgba(220, 38, 38, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
     }
 
     .hint {
       font-size: 0.78rem;
       color: var(--text-muted);
       margin-top: 6px;
+    }
+
+    #voice-status {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      min-height: 1.2em;
+    }
+
+    #voice-status.active {
+      color: #f87171;
     }
 
     footer {
@@ -227,7 +279,10 @@
     <div class="card">
       <h2><span class="num">1</span> Contexto / Rol</h2>
       <label for="rol">¿Quién es el modelo o qué rol debe asumir?</label>
-      <input type="text" id="rol" placeholder="Ej: Eres un arquitecto de software senior especializado en APIs REST">
+      <div class="field-wrap">
+        <input type="text" id="rol" placeholder="Ej: Eres un arquitecto de software senior especializado en APIs REST">
+        <button type="button" class="mic-btn" title="Dictar por voz" onclick="toggleDictado('rol', this)">🎤</button>
+      </div>
       <p class="hint">Opcional pero muy recomendable. Define el “quién”.</p>
     </div>
 
@@ -235,40 +290,56 @@
     <div class="card">
       <h2><span class="num">2</span> Objetivo principal</h2>
       <label for="objetivo">¿Qué quieres lograr exactamente?</label>
-      <textarea id="objetivo" placeholder="Ej: Crear la especificación funcional de un módulo de autenticación con login, registro y recuperación de contraseña" oninput="autoResize(this)"></textarea>
+      <div class="field-wrap">
+        <textarea id="objetivo" placeholder="Ej: Crear la especificación funcional de un módulo de autenticación con login, registro y recuperación de contraseña" oninput="autoResize(this)"></textarea>
+        <button type="button" class="mic-btn" title="Dictar por voz" onclick="toggleDictado('objetivo', this)">🎤</button>
+      </div>
     </div>
 
     <!-- 3. Descripción detallada -->
     <div class="card">
       <h2><span class="num">3</span> Descripción / Requisitos</h2>
       <label for="descripcion">Detalla lo que se necesita (funcionalidades, reglas de negocio, flujo…)</label>
-      <textarea id="descripcion" placeholder="Ej:&#10;- El usuario se registra con email y contraseña&#10;- Debe confirmar el email&#10;- Login con JWT&#10;- Recuperación por email con token de un solo uso&#10;- Rate limiting en intentos fallidos" oninput="autoResize(this)"></textarea>
+      <div class="field-wrap">
+        <textarea id="descripcion" placeholder="Ej:&#10;- El usuario se registra con email y contraseña&#10;- Debe confirmar el email&#10;- Login con JWT&#10;- Recuperación por email con token de un solo uso&#10;- Rate limiting en intentos fallidos" oninput="autoResize(this)"></textarea>
+        <button type="button" class="mic-btn" title="Dictar por voz" onclick="toggleDictado('descripcion', this)">🎤</button>
+      </div>
     </div>
 
     <!-- 4. Restricciones -->
     <div class="card">
       <h2><span class="num">4</span> Restricciones y reglas</h2>
       <label for="restricciones">Qué NO debe hacer, límites, tecnologías obligatorias, tono…</label>
-      <textarea id="restricciones" placeholder="Ej:&#10;- No usar OAuth de terceros&#10;- Debe ser compatible con mobile-first&#10;- Responder solo en español&#10;- No inventar endpoints que no se pidan" oninput="autoResize(this)"></textarea>
+      <div class="field-wrap">
+        <textarea id="restricciones" placeholder="Ej:&#10;- No usar OAuth de terceros&#10;- Debe ser compatible con mobile-first&#10;- Responder solo en español&#10;- No inventar endpoints que no se pidan" oninput="autoResize(this)"></textarea>
+        <button type="button" class="mic-btn" title="Dictar por voz" onclick="toggleDictado('restricciones', this)">🎤</button>
+      </div>
     </div>
 
     <!-- 5. Formato de salida -->
     <div class="card">
       <h2><span class="num">5</span> Formato de salida deseado</h2>
       <label for="formato">¿Cómo quieres que responda? (estructura, markdown, tabla, código…)</label>
-      <textarea id="formato" placeholder="Ej:&#10;Devuelve la especificación en Markdown con las secciones:&#10;1. Resumen&#10;2. User Stories&#10;3. Requisitos funcionales&#10;4. Criterios de aceptación&#10;5. Endpoints propuestos" oninput="autoResize(this)"></textarea>
+      <div class="field-wrap">
+        <textarea id="formato" placeholder="Ej:&#10;Devuelve la especificación en Markdown con las secciones:&#10;1. Resumen&#10;2. User Stories&#10;3. Requisitos funcionales&#10;4. Criterios de aceptación&#10;5. Endpoints propuestos" oninput="autoResize(this)"></textarea>
+        <button type="button" class="mic-btn" title="Dictar por voz" onclick="toggleDictado('formato', this)">🎤</button>
+      </div>
     </div>
 
     <!-- 6. Ejemplo (opcional) -->
     <div class="card">
       <h2><span class="num">6</span> Ejemplo (opcional)</h2>
       <label for="ejemplo">Un ejemplo corto de lo que esperas (few-shot)</label>
-      <textarea id="ejemplo" placeholder="Ej:&#10;User Story: Como usuario quiero recuperar mi contraseña para poder acceder de nuevo.&#10;Criterio: El email debe llegar en menos de 2 minutos." oninput="autoResize(this)"></textarea>
+      <div class="field-wrap">
+        <textarea id="ejemplo" placeholder="Ej:&#10;User Story: Como usuario quiero recuperar mi contraseña para poder acceder de nuevo.&#10;Criterio: El email debe llegar en menos de 2 minutos." oninput="autoResize(this)"></textarea>
+        <button type="button" class="mic-btn" title="Dictar por voz" onclick="toggleDictado('ejemplo', this)">🎤</button>
+      </div>
     </div>
 
     <div class="actions">
       <button class="btn-primary" onclick="generar()">Generar prompt estructurado</button>
       <button class="btn-secondary" onclick="limpiar()">Limpiar todo</button>
+      <p id="voice-status">Pulsa 🎤 en una caja para dictar. Funciona mejor en Chrome.</p>
     </div>
 
     <!-- Resultado -->
@@ -289,6 +360,101 @@
     function autoResize(el) {
       el.style.height = 'auto';
       el.style.height = el.scrollHeight + 'px';
+    }
+
+    const SpeechAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let reconocimiento = null;
+    let dictando = false;
+    let campoActivo = null;
+    let botonActivo = null;
+
+    function setVoiceStatus(texto, activo) {
+      const el = document.getElementById('voice-status');
+      if (!el) return;
+      el.textContent = texto;
+      el.classList.toggle('active', !!activo);
+    }
+
+    function detenerDictado() {
+      dictando = false;
+      if (reconocimiento) {
+        try { reconocimiento.stop(); } catch (e) {}
+      }
+      if (botonActivo) botonActivo.classList.remove('listening');
+      botonActivo = null;
+      campoActivo = null;
+      setVoiceStatus('Dictado detenido. Pulsa 🎤 para volver a hablar.', false);
+    }
+
+    function toggleDictado(idCampo, btn) {
+      if (!SpeechAPI) {
+        alert('Este navegador no soporta dictado por voz. Usa Chrome o Edge.');
+        return;
+      }
+
+      if (dictando && campoActivo === idCampo) {
+        detenerDictado();
+        return;
+      }
+
+      if (dictando) detenerDictado();
+
+      const campo = document.getElementById(idCampo);
+      if (!campo) return;
+
+      reconocimiento = new SpeechAPI();
+      reconocimiento.lang = 'es-ES';
+      reconocimiento.continuous = true;
+      reconocimiento.interimResults = false;
+
+      campoActivo = idCampo;
+      botonActivo = btn;
+      dictando = true;
+      btn.classList.add('listening');
+      setVoiceStatus('Escuchando… habla ahora. Vuelve a pulsar 🎤 para detener.', true);
+
+      reconocimiento.onresult = function (event) {
+        let texto = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          if (event.results[i].isFinal) {
+            texto += event.results[i][0].transcript;
+          }
+        }
+        texto = texto.trim();
+        if (!texto) return;
+
+        const actual = campo.value.trim();
+        campo.value = actual ? (actual + ' ' + texto) : texto;
+        campo.focus();
+        if (campo.tagName === 'TEXTAREA') autoResize(campo);
+      };
+
+      reconocimiento.onerror = function (event) {
+        const errores = {
+          'not-allowed': 'Permiso de micrófono denegado. Actívalo en Chrome para este archivo.',
+          'no-speech': 'No se detectó voz. Intenta de nuevo.',
+          'audio-capture': 'No se encontró micrófono.',
+          'network': 'El dictado de Chrome necesita conexión a internet.'
+        };
+        setVoiceStatus(errores[event.error] || ('Error de dictado: ' + event.error), false);
+        if (botonActivo) botonActivo.classList.remove('listening');
+        dictando = false;
+        campoActivo = null;
+        botonActivo = null;
+      };
+
+      reconocimiento.onend = function () {
+        if (dictando && campoActivo === idCampo) {
+          try { reconocimiento.start(); } catch (e) {}
+        }
+      };
+
+      try {
+        reconocimiento.start();
+      } catch (e) {
+        alert('No se pudo iniciar el micrófono.');
+        detenerDictado();
+      }
     }
 
     function generar() {
@@ -338,72 +504,34 @@
     }
 
     function marcarCopiado(btn) {
-      const original = btn.textContent;
+      if (!btn) return;
+      const original = btn.getAttribute('data-label') || btn.textContent;
+      btn.setAttribute('data-label', original);
       btn.textContent = '¡Copiado!';
       setTimeout(() => { btn.textContent = original; }, 1800);
     }
 
-    function seleccionarNodo(nodo) {
-      const sel = window.getSelection();
-      const range = document.createRange();
-      range.selectNodeContents(nodo);
-      sel.removeAllRanges();
-      sel.addRange(range);
-      return sel;
-    }
-
-    function execCopy() {
-      try {
-        return document.execCommand('copy');
-      } catch (e) {
-        return false;
-      }
-    }
-
-    // Chrome en file://: Clipboard API existe pero rechaza el permiso.
-    // Hay que copiar en el mismo click, sin await, inyectando el texto
-    // en el evento 'copy' (más fiable que un textarea oculto).
-    function copiarConEvento(texto) {
+    function copiarConFallback(texto) {
+      const temp = document.createElement('textarea');
+      temp.value = texto;
+      temp.setAttribute('readonly', '');
+      temp.style.position = 'fixed';
+      temp.style.top = '0';
+      temp.style.left = '0';
+      temp.style.width = '1px';
+      temp.style.height = '1px';
+      temp.style.opacity = '0';
+      document.body.appendChild(temp);
+      temp.focus();
+      temp.select();
+      temp.setSelectionRange(0, temp.value.length);
       let ok = false;
-      const onCopy = (e) => {
-        e.clipboardData.setData('text/plain', texto);
-        e.preventDefault();
-        ok = true;
-      };
-      document.addEventListener('copy', onCopy);
-      execCopy();
-      document.removeEventListener('copy', onCopy);
-      return ok;
-    }
-
-    function copiarDesdeSalida() {
-      const output = document.getElementById('output');
-      seleccionarNodo(output);
-      const ok = execCopy();
-      window.getSelection().removeAllRanges();
-      return ok;
-    }
-
-    function copiarConTextarea(texto) {
-      const ta = document.createElement('textarea');
-      ta.value = texto;
-      ta.setAttribute('readonly', '');
-      ta.style.position = 'fixed';
-      ta.style.top = '0';
-      ta.style.left = '0';
-      ta.style.width = '2em';
-      ta.style.height = '2em';
-      ta.style.padding = '0';
-      ta.style.border = 'none';
-      ta.style.outline = 'none';
-      ta.style.boxShadow = 'none';
-      ta.style.background = 'transparent';
-      document.body.appendChild(ta);
-      ta.focus();
-      ta.select();
-      ta.setSelectionRange(0, ta.value.length);
-      const ok = execCopy();
-      document.body.removeChild(ta);
+      try {
+        ok = document.execCommand('copy');
+      } catch (e) {
+        ok = false;
+      }
+      document.body.removeChild(temp);
       return ok;
     }
 
@@ -414,30 +542,28 @@
         return;
       }
 
-      if (copiarConEvento(texto) || copiarDesdeSalida() || copiarConTextarea(texto)) {
-        marcarCopiado(btn);
-        return;
-      }
-
-      const puedeClipboard = location.protocol !== 'file:'
-        && navigator.clipboard
-        && window.isSecureContext;
-
-      if (puedeClipboard) {
+      if (navigator.clipboard && window.isSecureContext) {
         navigator.clipboard.writeText(texto).then(() => {
           marcarCopiado(btn);
         }).catch(() => {
-          seleccionarNodo(document.getElementById('output'));
-          alert('No se pudo copiar automáticamente. El texto ya está seleccionado: pulsa Ctrl+C.');
+          if (copiarConFallback(texto)) {
+            marcarCopiado(btn);
+          } else {
+            alert('No se pudo copiar. Selecciona el texto generado y usa Ctrl+C.');
+          }
         });
         return;
       }
 
-      seleccionarNodo(document.getElementById('output'));
-      alert('No se pudo copiar automáticamente. El texto ya está seleccionado: pulsa Ctrl+C.');
+      if (copiarConFallback(texto)) {
+        marcarCopiado(btn);
+      } else {
+        alert('No se pudo copiar. Selecciona el texto generado y usa Ctrl+C.');
+      }
     }
 
     function limpiar() {
+      if (dictando) detenerDictado();
       ['rol', 'objetivo', 'descripcion', 'restricciones', 'formato', 'ejemplo'].forEach(id => {
         const el = document.getElementById(id);
         el.value = '';
