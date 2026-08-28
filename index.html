@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Estructurador de Prompt / Spec</title>
   <style>
-    :root {
+    :root,
+    html[data-theme="dark"] {
       --bg: #0f1419;
       --surface: #1a2332;
       --surface2: #243044;
@@ -15,7 +16,23 @@
       --accent: #3b82f6;
       --accent-hover: #2563eb;
       --success: #22c55e;
+      --output-bg: #0d1117;
+      --output-text: #c9d1d9;
       --radius: 10px;
+    }
+
+    html[data-theme="light"] {
+      --bg: #f3f5f8;
+      --surface: #ffffff;
+      --surface2: #eef2f7;
+      --border: #d5deea;
+      --text: #152033;
+      --text-muted: #5b6b82;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --success: #16a34a;
+      --output-bg: #f8fafc;
+      --output-text: #1e293b;
     }
 
     * {
@@ -31,6 +48,29 @@
       line-height: 1.5;
       min-height: 100vh;
       padding: 24px 16px 48px;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    header {
+      position: relative;
+    }
+
+    .theme-toggle {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 42px;
+      height: 42px;
+      padding: 0;
+      border-radius: 10px;
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+      font-size: 1.1rem;
+    }
+
+    .theme-toggle:hover {
+      background: var(--surface2);
     }
 
     .container {
@@ -59,20 +99,56 @@
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 20px 22px;
+      padding: 12px 16px 16px;
       margin-bottom: 16px;
     }
 
-    .card h2 {
+    .card-header {
+      width: 100%;
+      background: transparent;
+      color: var(--accent);
+      padding: 8px 4px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
       font-size: 0.85rem;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.04em;
-      color: var(--accent);
-      margin-bottom: 10px;
+      text-align: left;
+      border-radius: 8px;
+    }
+
+    .card-header:hover {
+      background: var(--surface2);
+    }
+
+    .toggle-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      flex-shrink: 0;
+    }
+
+    .card.collapsed .toggle-icon {
+      transform: rotate(-90deg);
+    }
+
+    .card h2 {
+      font-size: inherit;
+      font-weight: inherit;
+      margin: 0;
       display: flex;
       align-items: center;
       gap: 8px;
+      flex: 1;
     }
 
     .card h2 .num {
@@ -85,6 +161,30 @@
       align-items: center;
       justify-content: center;
       font-size: 0.75rem;
+    }
+
+    .card-body {
+      padding-top: 8px;
+    }
+
+    .card.collapsed .card-body {
+      display: none;
+    }
+
+    select {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      font-family: inherit;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: var(--accent);
     }
 
     label {
@@ -187,7 +287,7 @@
     }
 
     #output {
-      background: #0d1117;
+      background: var(--output-bg);
       border: 1px solid var(--border);
       border-radius: 8px;
       padding: 16px;
@@ -197,7 +297,7 @@
       word-break: break-word;
       max-height: 420px;
       overflow-y: auto;
-      color: #c9d1d9;
+      color: var(--output-text);
     }
 
     .field-wrap {
@@ -271,68 +371,109 @@
 <body>
   <div class="container">
     <header>
+      <button type="button" class="theme-toggle" id="themeToggle" title="Cambiar tema" onclick="toggleTema()">🌙</button>
       <h1>Estructurador de Prompt / Spec</h1>
       <p>Completa las secciones → genera un prompt o especificación clara y lista para copiar</p>
     </header>
 
     <!-- 1. Contexto / Rol -->
     <div class="card">
-      <h2><span class="num">1</span> Contexto / Rol</h2>
-      <label for="rol">¿Quién es el modelo o qué rol debe asumir?</label>
-      <div class="field-wrap">
-        <input type="text" id="rol" placeholder="Ej: Eres un arquitecto de software senior especializado en APIs REST">
-        <button type="button" class="mic-btn" title="Dictar por voz" onclick="toggleDictado('rol', this)">🎤</button>
+      <button type="button" class="card-header" onclick="toggleSeccion(this)">
+        <span class="toggle-icon">▼</span>
+        <h2><span class="num">1</span> Contexto / Rol</h2>
+      </button>
+      <div class="card-body">
+        <label for="rolSelect">Elige el rol que debe asumir Claude Code</label>
+        <select id="rolSelect" onchange="aplicarRol()">
+          <option value="">— Selecciona un rol —</option>
+          <option value="fullstack">Analista funcional y desarrollador Full Stack (Claude Code)</option>
+          <option value="datos">Arquitecto de datos especializado en PostgreSQL (Claude Code)</option>
+          <option value="ux">Diseñador UX/UI</option>
+          <option value="custom">Personalizado…</option>
+        </select>
+        <div id="rolCustomWrap" style="display:none; margin-top:12px;">
+          <label for="rol">Describe el rol personalizado</label>
+          <div class="field-wrap">
+            <input type="text" id="rol" placeholder="Ej: Eres un QA senior especializado en pruebas de API">
+            <button type="button" class="mic-btn" title="Dictar por voz" onclick="toggleDictado('rol', this)">🎤</button>
+          </div>
+        </div>
+        <p class="hint" id="rolHint">Al elegir un rol se genera un contexto más preciso para el prompt.</p>
       </div>
-      <p class="hint">Opcional pero muy recomendable. Define el “quién”.</p>
     </div>
 
     <!-- 2. Objetivo -->
     <div class="card">
-      <h2><span class="num">2</span> Objetivo principal</h2>
-      <label for="objetivo">¿Qué quieres lograr exactamente?</label>
-      <div class="field-wrap">
-        <textarea id="objetivo" placeholder="Ej: Crear la especificación funcional de un módulo de autenticación con login, registro y recuperación de contraseña" oninput="autoResize(this)"></textarea>
-        <button type="button" class="mic-btn" title="Dictar por voz" onclick="toggleDictado('objetivo', this)">🎤</button>
+      <button type="button" class="card-header" onclick="toggleSeccion(this)">
+        <span class="toggle-icon">▼</span>
+        <h2><span class="num">2</span> Objetivo principal</h2>
+      </button>
+      <div class="card-body">
+        <label for="objetivo">¿Qué quieres lograr exactamente?</label>
+        <div class="field-wrap">
+          <textarea id="objetivo" placeholder="Ej: Crear la especificación funcional de un módulo de autenticación con login, registro y recuperación de contraseña" oninput="autoResize(this)"></textarea>
+          <button type="button" class="mic-btn" title="Dictar por voz" onclick="toggleDictado('objetivo', this)">🎤</button>
+        </div>
       </div>
     </div>
 
     <!-- 3. Descripción detallada -->
     <div class="card">
-      <h2><span class="num">3</span> Descripción / Requisitos</h2>
-      <label for="descripcion">Detalla lo que se necesita (funcionalidades, reglas de negocio, flujo…)</label>
-      <div class="field-wrap">
-        <textarea id="descripcion" placeholder="Ej:&#10;- El usuario se registra con email y contraseña&#10;- Debe confirmar el email&#10;- Login con JWT&#10;- Recuperación por email con token de un solo uso&#10;- Rate limiting en intentos fallidos" oninput="autoResize(this)"></textarea>
-        <button type="button" class="mic-btn" title="Dictar por voz" onclick="toggleDictado('descripcion', this)">🎤</button>
+      <button type="button" class="card-header" onclick="toggleSeccion(this)">
+        <span class="toggle-icon">▼</span>
+        <h2><span class="num">3</span> Descripción / Requisitos</h2>
+      </button>
+      <div class="card-body">
+        <label for="descripcion">Detalla lo que se necesita (funcionalidades, reglas de negocio, flujo…)</label>
+        <div class="field-wrap">
+          <textarea id="descripcion" placeholder="Ej:&#10;- El usuario se registra con email y contraseña&#10;- Debe confirmar el email&#10;- Login con JWT&#10;- Recuperación por email con token de un solo uso&#10;- Rate limiting en intentos fallidos" oninput="autoResize(this)"></textarea>
+          <button type="button" class="mic-btn" title="Dictar por voz" onclick="toggleDictado('descripcion', this)">🎤</button>
+        </div>
       </div>
     </div>
 
     <!-- 4. Restricciones -->
     <div class="card">
-      <h2><span class="num">4</span> Restricciones y reglas</h2>
-      <label for="restricciones">Qué NO debe hacer, límites, tecnologías obligatorias, tono…</label>
-      <div class="field-wrap">
-        <textarea id="restricciones" placeholder="Ej:&#10;- No usar OAuth de terceros&#10;- Debe ser compatible con mobile-first&#10;- Responder solo en español&#10;- No inventar endpoints que no se pidan" oninput="autoResize(this)"></textarea>
-        <button type="button" class="mic-btn" title="Dictar por voz" onclick="toggleDictado('restricciones', this)">🎤</button>
+      <button type="button" class="card-header" onclick="toggleSeccion(this)">
+        <span class="toggle-icon">▼</span>
+        <h2><span class="num">4</span> Restricciones y reglas</h2>
+      </button>
+      <div class="card-body">
+        <label for="restricciones">Qué NO debe hacer, límites, tecnologías obligatorias, tono…</label>
+        <div class="field-wrap">
+          <textarea id="restricciones" placeholder="Ej:&#10;- No usar OAuth de terceros&#10;- Debe ser compatible con mobile-first&#10;- Responder solo en español&#10;- No inventar endpoints que no se pidan" oninput="autoResize(this)"></textarea>
+          <button type="button" class="mic-btn" title="Dictar por voz" onclick="toggleDictado('restricciones', this)">🎤</button>
+        </div>
       </div>
     </div>
 
     <!-- 5. Formato de salida -->
     <div class="card">
-      <h2><span class="num">5</span> Formato de salida deseado</h2>
-      <label for="formato">¿Cómo quieres que responda? (estructura, markdown, tabla, código…)</label>
-      <div class="field-wrap">
-        <textarea id="formato" placeholder="Ej:&#10;Devuelve la especificación en Markdown con las secciones:&#10;1. Resumen&#10;2. User Stories&#10;3. Requisitos funcionales&#10;4. Criterios de aceptación&#10;5. Endpoints propuestos" oninput="autoResize(this)"></textarea>
-        <button type="button" class="mic-btn" title="Dictar por voz" onclick="toggleDictado('formato', this)">🎤</button>
+      <button type="button" class="card-header" onclick="toggleSeccion(this)">
+        <span class="toggle-icon">▼</span>
+        <h2><span class="num">5</span> Formato de salida deseado</h2>
+      </button>
+      <div class="card-body">
+        <label for="formato">¿Cómo quieres que responda? (estructura, markdown, tabla, código…)</label>
+        <div class="field-wrap">
+          <textarea id="formato" placeholder="Ej:&#10;Devuelve la especificación en Markdown con las secciones:&#10;1. Resumen&#10;2. User Stories&#10;3. Requisitos funcionales&#10;4. Criterios de aceptación&#10;5. Endpoints propuestos" oninput="autoResize(this)"></textarea>
+          <button type="button" class="mic-btn" title="Dictar por voz" onclick="toggleDictado('formato', this)">🎤</button>
+        </div>
       </div>
     </div>
 
     <!-- 6. Ejemplo (opcional) -->
     <div class="card">
-      <h2><span class="num">6</span> Ejemplo (opcional)</h2>
-      <label for="ejemplo">Un ejemplo corto de lo que esperas (few-shot)</label>
-      <div class="field-wrap">
-        <textarea id="ejemplo" placeholder="Ej:&#10;User Story: Como usuario quiero recuperar mi contraseña para poder acceder de nuevo.&#10;Criterio: El email debe llegar en menos de 2 minutos." oninput="autoResize(this)"></textarea>
-        <button type="button" class="mic-btn" title="Dictar por voz" onclick="toggleDictado('ejemplo', this)">🎤</button>
+      <button type="button" class="card-header" onclick="toggleSeccion(this)">
+        <span class="toggle-icon">▼</span>
+        <h2><span class="num">6</span> Ejemplo (opcional)</h2>
+      </button>
+      <div class="card-body">
+        <label for="ejemplo">Un ejemplo corto de lo que esperas (few-shot)</label>
+        <div class="field-wrap">
+          <textarea id="ejemplo" placeholder="Ej:&#10;User Story: Como usuario quiero recuperar mi contraseña para poder acceder de nuevo.&#10;Criterio: El email debe llegar en menos de 2 minutos." oninput="autoResize(this)"></textarea>
+          <button type="button" class="mic-btn" title="Dictar por voz" onclick="toggleDictado('ejemplo', this)">🎤</button>
+        </div>
       </div>
     </div>
 
@@ -344,10 +485,15 @@
 
     <!-- Resultado -->
     <div class="card" id="output-section">
-      <h2>Prompt generado</h2>
-      <div id="output"></div>
-      <div class="actions" style="margin-top: 14px; margin-bottom: 0;">
-        <button class="btn-success" type="button" onclick="copiar(this)">Copiar al portapapeles</button>
+      <button type="button" class="card-header" onclick="toggleSeccion(this)">
+        <span class="toggle-icon">▼</span>
+        <h2>Prompt generado</h2>
+      </button>
+      <div class="card-body">
+        <div id="output"></div>
+        <div class="actions" style="margin-top: 14px; margin-bottom: 0;">
+          <button class="btn-success" type="button" onclick="copiar(this)">Copiar al portapapeles</button>
+        </div>
       </div>
     </div>
 
@@ -360,6 +506,58 @@
     function autoResize(el) {
       el.style.height = 'auto';
       el.style.height = el.scrollHeight + 'px';
+    }
+
+    function aplicarTema(tema) {
+      document.documentElement.setAttribute('data-theme', tema);
+      localStorage.setItem('tema', tema);
+      const btn = document.getElementById('themeToggle');
+      if (btn) btn.textContent = tema === 'light' ? '🌙' : '☀️';
+    }
+
+    function toggleTema() {
+      const actual = document.documentElement.getAttribute('data-theme') || 'dark';
+      aplicarTema(actual === 'dark' ? 'light' : 'dark');
+    }
+
+    (function initTema() {
+      const guardado = localStorage.getItem('tema');
+      const prefiereClaro = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+      aplicarTema(guardado || (prefiereClaro ? 'light' : 'dark'));
+    })();
+
+    function toggleSeccion(btn) {
+      const card = btn.closest('.card');
+      if (!card) return;
+      card.classList.toggle('collapsed');
+    }
+
+    const ROLES = {
+      fullstack: 'Eres un analista funcional y desarrollador Full Stack que trabaja con Claude Code. Traduces necesidades de negocio a especificación clara, y luego las implementas con código limpio, pruebas y pasos ejecutables en el repositorio.',
+      datos: 'Eres un arquitecto de datos especializado en PostgreSQL que trabaja con Claude Code. Diseñas modelos, consultas, migraciones e integridad de datos con enfoque práctico y listo para implementar.',
+      ux: 'Eres un diseñador UX/UI. Priorizas claridad, usabilidad, consistencia visual y flujos simples. Entregas criterios de diseño accionables, no solo ideas genéricas.'
+    };
+
+    function aplicarRol() {
+      const valor = document.getElementById('rolSelect').value;
+      const customWrap = document.getElementById('rolCustomWrap');
+      const hint = document.getElementById('rolHint');
+      customWrap.style.display = valor === 'custom' ? 'block' : 'none';
+
+      if (valor && ROLES[valor]) {
+        hint.textContent = 'Rol seleccionado: se usará este contexto en el prompt generado.';
+      } else if (valor === 'custom') {
+        hint.textContent = 'Escribe tu propio rol. También puedes dictarlo con 🎤.';
+      } else {
+        hint.textContent = 'Al elegir un rol se genera un contexto más preciso para el prompt.';
+      }
+    }
+
+    function obtenerRol() {
+      const valor = document.getElementById('rolSelect').value;
+      if (ROLES[valor]) return ROLES[valor];
+      if (valor === 'custom') return document.getElementById('rol').value.trim();
+      return '';
     }
 
     const SpeechAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -458,7 +656,7 @@
     }
 
     function generar() {
-      const rol = document.getElementById('rol').value.trim();
+      const rol = obtenerRol();
       const objetivo = document.getElementById('objetivo').value.trim();
       const descripcion = document.getElementById('descripcion').value.trim();
       const restricciones = document.getElementById('restricciones').value.trim();
@@ -564,6 +762,9 @@
 
     function limpiar() {
       if (dictando) detenerDictado();
+      document.getElementById('rolSelect').value = '';
+      document.getElementById('rolCustomWrap').style.display = 'none';
+      document.getElementById('rolHint').textContent = 'Al elegir un rol se genera un contexto más preciso para el prompt.';
       ['rol', 'objetivo', 'descripcion', 'restricciones', 'formato', 'ejemplo'].forEach(id => {
         const el = document.getElementById(id);
         el.value = '';
